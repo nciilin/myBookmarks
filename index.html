@@ -51,24 +51,46 @@
   var index = 0;
   while (index < keys['length']) {
     var div = document.createElement('div');
+    div.className = 'row';
     main.appendChild(div);
     var row = keys[index];
     var index2 = 0;
     while (index2 < row['length']) {
       var keyBoard = document.createElement('kbd');
-      keyBoard.textContent =row[index2]
-      var buttonX = document.createElement('button');
-      buttonX.textContent = '编辑';
-      buttonX.id = row[index2];
-      buttonX.onclick = function (btn) {
-        var key = btn['target']['id'];
-        var getWebsite = prompt('给我一个网址');
-        hash[key] = getWebsite;
-        localStorage.setItem('xxx', JSON.stringify(hash))
-        console.log(hash)
+      var span = document.createElement('span'); 
+      span.textContent =row[index2];
+      span.className = 'text';
+      keyBoard.appendChild(span);
+      keyBoard.className = 'key';
+      var button = document.createElement('button');
+      button.textContent = '编辑';
+      button.id = row[index2];
+      var img = document.createElement('img');
+      if(hash[row[index2]]) {
+        img.src = 'http://' + hash[row[index2]] + '/favicon.ico';
+      } else {
+        img.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
       }
+      img.onerror = function(imgs) {
+        console.log('下载失败了');
+        imgs.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
+      }
+     
+      button.onclick = function (btn) {
+        var buttonRepeat = btn['target'];
+        var imgRepeat = buttonRepeat.previousSibling; 
+        var key = buttonRepeat['id'];
+        var getWebsite = prompt('给我一个网址');
+        hash[key] = getWebsite; 
+        imgRepeat.src = 'http://' + getWebsite + '/favicon.ico';
+        imgRepeat.onerror = function(imgs) {
+          imgs.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
+      }
+        localStorage.setItem('xxx', JSON.stringify(hash));
+      }
+      keyBoard.appendChild(img);
       div.appendChild(keyBoard);
-      keyBoard.appendChild(buttonX);
+      keyBoard.appendChild(button);
       index2 = index2 + 1;
     }
     index = index + 1;
@@ -77,8 +99,6 @@
     document.onkeypress = function (x) {
       var key = x['key'];
       var website = hash[key];
-      console.log(key)
-      console.log(website)
       window.open('http://' + website, '_blank');
     }
 
