@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,100 +8,148 @@
   <link rel="stylesheet" href="./css/style.css">
   <title>Navigation书签</title>
 </head>
+
 <body>
   <header></header>
   <main>
-    <div class="wrapper"  id="main"></div>
+    <div class="wrapper" id="main"></div>
   </main>
   <footer></footer>
 
 </body>
-
 <script>
-  var keys = {
-    '0': ['1','2','3','4','5','6','7','8','9','0'],
-    '1': ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-    '2': ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    '3': ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
-    length: 4
-  }
-  var hash = {
-    q: 'qq.com',
-    w: 'weibo.com',
-    e: 'ele.com',
-    r: 'renren.com',
-    t: 'tianya.com',
-    y: 'youtube.com',
-    u: 'uc.com',
-    i: 'iqiyi.com',
-    o: 'opear.com',
-    p: undefined,
-    a: 'acfun.tv',
-    s: 'sohu.com',
-    z: 'zhihu.com',
-    m: 'www.mcdonalds.com.cn'
+
+  // 初始化数据
+  var hashA = init();
+  var keys = hashA['keys'];
+  var hash = hashA['hash'];
+
+  // 生成键盘
+  generateKeyBoard(keys, hash);
+
+  // ·监听用户动作
+  ListenToUser(hash)
+
+  // 下面是工具函数
+  function init() {
+    var keys = {
+      '0': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+      '1': ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+      '2': ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+      '3': ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
+      length: 4
+    }
+    var hash = {
+      q: 'qq.com',
+      w: 'weibo.com',
+      e: 'ele.com',
+      r: 'renren.com',
+      t: 'tianya.com',
+      y: 'youtube.com',
+      u: 'uc.com',
+      i: 'iqiyi.com',
+      o: 'opear.com',
+      p: undefined,
+      a: 'acfun.tv',
+      s: 'sohu.com',
+      z: 'zhihu.com',
+      m: 'www.mcdonalds.com.cn'
+    }
+
+    var hashLocalStorage = getFormLocalStorage('xxx');
+
+    if (hashLocalStorage) {
+      hash = hashLocalStorage
+    }
+    return {
+      keys: keys,
+      hash: hash
+    }
   }
 
-  
-  var hashLocalStorage = JSON.parse(localStorage.getItem('xxx') || 'null');
 
-  if(hashLocalStorage) {
-    hash = hashLocalStorage
+  function tag(tagName) {
+    return document.createElement(tagName);
   }
 
-  var index = 0;
-  while (index < keys['length']) {
-    var div = document.createElement('div');
-    div.className = 'row';
-    main.appendChild(div);
-    var row = keys[index];
-    var index2 = 0;
-    while (index2 < row['length']) {
-      var keyBoard = document.createElement('kbd');
-      var span = document.createElement('span'); 
-      span.textContent =row[index2];
-      span.className = 'text';
-      keyBoard.appendChild(span);
-      keyBoard.className = 'key';
-      var button = document.createElement('button');
-      button.textContent = '编辑';
-      button.id = row[index2];
-      var img = document.createElement('img');
-      if(hash[row[index2]]) {
-        img.src = 'http://' + hash[row[index2]] + '/favicon.ico';
-      } else {
-        img.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
-      }
-      img.onerror = function(imgs) {
-        console.log('下载失败了');
+  function createSpan(textContent) {
+    var span = tag('span');
+    span.textContent = textContent;
+    span.className = 'text';
+    return span
+  }
+
+  function createButton(id) {
+    var button = tag('button');
+    button.textContent = '编辑';
+    button.id = id;
+    button.onclick = function (btn) {
+      var buttonRepeat = btn['target'];
+      var imgRepeat = buttonRepeat.previousSibling;
+      var key = buttonRepeat['id'];
+      var getWebsite = prompt('给我一个网址');
+      hash[key] = getWebsite;
+      imgRepeat.src = 'http://' + getWebsite + '/favicon.ico';
+      imgRepeat.onerror = function (imgs) {
         imgs.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
       }
-     
-      button.onclick = function (btn) {
-        var buttonRepeat = btn['target'];
-        var imgRepeat = buttonRepeat.previousSibling; 
-        var key = buttonRepeat['id'];
-        var getWebsite = prompt('给我一个网址');
-        hash[key] = getWebsite; 
-        imgRepeat.src = 'http://' + getWebsite + '/favicon.ico';
-        imgRepeat.onerror = function(imgs) {
-          imgs.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
-      }
-        localStorage.setItem('xxx', JSON.stringify(hash));
-      }
-      keyBoard.appendChild(img);
-      div.appendChild(keyBoard);
-      keyBoard.appendChild(button);
-      index2 = index2 + 1;
+      localStorage.setItem('xxx', JSON.stringify(hash));
     }
-    index = index + 1;
+    return button
   }
-   
+
+  function createImage(domain) {
+    var img = tag('img');
+    if (domain) {
+      img.src = 'http://' + domain + '/favicon.ico';
+    } else {
+      img.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
+    }
+    img.onerror = function (imgs) {
+      console.log('下载失败了');
+      imgs.target.src = '//i.loli.net/2017/11/10/5a05afbc5e183.png';
+    }
+    return img
+  }
+
+  function getFormLocalStorage(name) {
+    return JSON.parse(localStorage.getItem(name) || 'null');
+  }
+
+  function generateKeyBoard(keys, hash) {
+    for (var index = 0; index < keys['length']; index = index + 1) {
+      var div = tag('div');
+      div.className = 'row';
+
+      main.appendChild(div);
+
+      var row = keys[index];
+      for (var index2 = 0; index2 < row['length']; index2 = index2 + 1) {
+        var span = createSpan(row[index2]);
+
+        var button = createButton(row[index2]);
+
+        var img = createImage(hash[row[index2]]);
+
+        var keyBoard = tag('kbd');
+        keyBoard.className = 'key';
+
+        keyBoard.appendChild(span);
+        keyBoard.appendChild(img);
+        keyBoard.appendChild(button);
+        div.appendChild(keyBoard);
+      }
+    }
+  }
+
+    function ListenToUser(hash) {
     document.onkeypress = function (x) {
       var key = x['key'];
       var website = hash[key];
       window.open('http://' + website, '_blank');
     }
+  }
 
-  </script>
+</script>
+
 </html>
